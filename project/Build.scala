@@ -11,8 +11,13 @@ object ProjectBuild extends Build {
       organization := "net.badgerhunt",
       version := "0.1-SNAPSHOT",
       scalaVersion := "2.9.1",
-      resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
-      libraryDependencies += "com.typesafe.akka" % "akka-actor" % "2.0"
+      resolvers ++= Seq(
+        "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
+        "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
+        "releases"  at "http://oss.sonatype.org/content/repositories/releases"),
+      libraryDependencies ++= Seq(
+        "com.typesafe.akka" % "akka-actor" % "2.0",
+        "org.specs2" %% "specs2" % "1.9" % "test")
     )
   )
 }
