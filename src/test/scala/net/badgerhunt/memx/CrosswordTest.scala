@@ -66,7 +66,7 @@ class CrosswordTest extends Specification {
   }
 
   "A crossword" should {
-    val crossword = Crossword(10,10)
+    val crossword = Crossword(10, 10)
 
     "allow a placement to be made" in {
       val word = Word("パチンコ", "pachinko", Placement(3, 3, Horizontal))
@@ -81,7 +81,16 @@ class CrosswordTest extends Specification {
       updated.words must contain(
         Word("もちろん", "of course", Placement(3, 8, Horizontal)),
         Word("いりくち", "entrance", Placement(4, 5, Vertical))).only
-      // todo - test if all the letters are correclty in place in the grid.
+
+      println(updated.gridString)
+
+      updated.letter(3, 8) must beEqualTo('も')
+      updated.letter(4, 8) must beEqualTo('ち')
+      updated.letter(5, 8) must beEqualTo('ろ')
+      updated.letter(6, 8) must beEqualTo('ん')
+      updated.letter(4, 5) must beEqualTo('い')
+      updated.letter(4, 6) must beEqualTo('り')
+      updated.letter(4, 7) must beEqualTo('く')
     }
 
     "deny a placement that overwrites an existing letter with a different one" in {
