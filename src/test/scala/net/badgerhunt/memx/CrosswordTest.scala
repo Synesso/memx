@@ -82,8 +82,6 @@ class CrosswordTest extends Specification {
         Word("もちろん", "of course", Placement(3, 8, Horizontal)),
         Word("いりくち", "entrance", Placement(4, 5, Vertical))).only
 
-      println(updated.gridString)
-
       updated.letter(3, 8) must beEqualTo('も')
       updated.letter(4, 8) must beEqualTo('ち')
       updated.letter(5, 8) must beEqualTo('ろ')
@@ -99,34 +97,28 @@ class CrosswordTest extends Specification {
       result must beEqualTo(updated)
     }
 
-    /*
-        "allow a placement that intersects an existing word with the same letter" in {
+    "deny a placement that breaches the left hand boundary" in {
+      crossword.place(Word("むら", "village", Placement(-1, 2, Horizontal))) must beEqualTo(crossword)
+    }
 
-        }
+    "deny a placement that breaches the right hand boundary" in {
+      crossword.place(Word("むらさき", "purple", Placement(7, 2, Horizontal))) must beEqualTo(crossword)
+    }
 
-        "deny a placement that breaches the left hand boundary" in {
+    "deny a placement that breaches the top boundary" in {
+      crossword.place(Word("なす", "eggplant", Placement(4, -1, Vertical))) must beEqualTo(crossword)
+    }
 
-        }
+    "deny a placement that breaches the bottom boundary" in {
+      crossword.place(Word("げんきん", "cash", Placement(3, 8, Vertical))) must beEqualTo(crossword)
+    }
 
-        "deny a placement that breaches the right hand boundary" in {
+    "deny a placement that breaches the top and bottom boundaries" in {
+      crossword.place(Word("のどがかわきませんでした", "was not thirsty", Placement(3, -1, Vertical))) must beEqualTo(crossword)
+    }
 
-        }
-
-        "deny a placement that breaches the top boundary" in {
-
-        }
-
-        "deny a placement that breaches the bottom boundary" in {
-
-        }
-
-        "deny a placement that breaches the top and bottom boundaries" in {
-
-        }
-
-        "deny a placement that breaches the left and right hand boundaries" in {
-
-        }
-    */
+    "deny a placement that breaches the left and right hand boundaries" in {
+      crossword.place(Word("おなかがすきませんでした", "was not hungry", Placement(-1, 1, Horizontal))) must beEqualTo(crossword)
+    }
   }
 }

@@ -1,5 +1,7 @@
 package net.badgerhunt.memx
 
+import scala.Char
+
 case class Crossword(width: Int, height: Int, words: Set[Word] = Set.empty) {
 
   private val grid = words.foldLeft(Array.ofDim[Char](width, height)) {(letters, word) =>
@@ -28,9 +30,15 @@ case class Crossword(width: Int, height: Int, words: Set[Word] = Set.empty) {
       }
   }
 
-  def place(word: Word) = if (word.letters.forall(l => grid(l.x)(l.y) == l.char || grid(l.x)(l.y) == 0)) {
-    this.copy(words = words + word)
-  } else this
+  def place(word: Word) = {
+    if (word.letters.forall { l =>
+      l.x > 0 && l.x < width &&
+        l.y > 0 && l.y < height &&
+        (grid(l.x)(l.y) == l.char || grid(l.x)(l.y) == 0)
+    }) {
+      this.copy(words = words + word)
+    } else this
+  }
 
   def letter(x: Int, y: Int) = grid(x)(y)
 }
