@@ -5,7 +5,7 @@ import org.specs2.mutable.Specification
 class CrosswordTest extends Specification {
 
   "A crossword wider than it is high" should {
-    val crossword = Crossword(4,3)
+    val crossword = Crossword(4, 3)
 
     "find no placements for words that are too large" in {
       crossword.placementsFor("しゅくだい") must beEmpty
@@ -35,7 +35,7 @@ class CrosswordTest extends Specification {
   }
 
   "A crossword higher than it is wide" should {
-    val crossword = Crossword(3,4)
+    val crossword = Crossword(3, 4)
 
     "find no placements for words that are too large" in {
       crossword.placementsFor("しゅくだい") must beEmpty
@@ -121,4 +121,30 @@ class CrosswordTest extends Specification {
       crossword.place(Word("おなかがすきませんでした", "was not hungry", Placement(-1, 1, Horizontal))) must beEqualTo(crossword)
     }
   }
+
+  /*
+    "A crossword with an existing placement" should {
+      "find zero placements for words that do no intersect" in {
+
+      }
+      "find zero placements for words that intersect but breach the left boundary" in {
+
+      }
+      "find zero placements for words that intersect but breach the right boundary" in {
+
+      }
+      "find zero placements for words that intersect but breach the top boundary" in {
+
+      }
+      "find zero placements for words that intersect but breach the bottom boundary" in {
+
+      }
+      "find a placement for words that intersect" in {
+
+      }
+      "find multiple placements for words that intersect multiple times" in {
+
+      }
+    }
+  */
 }
