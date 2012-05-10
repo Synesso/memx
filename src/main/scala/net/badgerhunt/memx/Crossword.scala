@@ -2,16 +2,12 @@ package net.badgerhunt.memx
 
 import scala.Char
 
-case class Crossword(width: Int, height: Int, words: Set[Word] = Set.empty) {
-
-  private val grid = words.foldLeft(Array.ofDim[Char](width, height)) {(letters, word) =>
-    word.letters.foldLeft(letters) {(acc, l) => acc.updated(l.x, acc(l.x).updated(l.y, l.char))}
-  }
+case class Crossword(width: Int, height: Int, words: Set[Word] = Set.empty, letters: Map[(Int, Int), Char] = Map.empty) {
 
   lazy val gridString = {
     (0 until height).map{yy =>
       (0 until width).map{xx =>
-        val c = grid(xx)(yy)
+        val c = letters(xx, yy)
         if (c == 0) "。" else c
       }.mkString + "\n"
     }
@@ -34,13 +30,16 @@ case class Crossword(width: Int, height: Int, words: Set[Word] = Set.empty) {
     if (word.letters.forall { l =>
       l.x > 0 && l.x < width &&
         l.y > 0 && l.y < height &&
-        (grid(l.x)(l.y) == l.char || grid(l.x)(l.y) == 0)
+        (!letters.contains(l.x, l.y) || letters(l.x, l.y) == l.char)
     }) {
-      this.copy(words = words + word)
+      this.copy(
+        words = words + word,
+        letters = word.letters.foldLeft(letters) {(acc, l) => acc.updated((l.x, l.y), l.char)}
+      )
     } else this
   }
 
-  def letter(x: Int, y: Int) = grid(x)(y)
+  def letter(x: Int, y: Int) = letters(x, y)
 }
 
 sealed trait Orientation
