@@ -159,11 +159,23 @@ class CrosswordTest extends Specification {
       ).only
     }
 
-//    "not find placements that invalidate the intersected word (ie in the same orientation)" in {
-//      crossword.placementsFor("わかり") must not contain(Placement(5, 8, Horizontal))
-//    }
+    "find placements that report auxiliary words by extending existing words" in {
+      crossword.placementsFor("わかり") must contain(Placement(5, 8, Horizontal, aux = Set("かいわかり")))
+    }
+
+    "find placements that report auxiliary words by prefixing existing words" in {
+      crossword.placementsFor("しずか") must contain(Placement(1, 8, Horizontal, aux = Set("しずかいわ")))
+    }
 
     /*
+      "not find placements that are substrings of existing words" in {
+
+      }
+
+      "find placements that report auxiliary words (ie new words created as a result of extending existing letters)" in {
+
+      }
+
         "find zero placements for words that intersect but breach the left boundary" in {
 
         }

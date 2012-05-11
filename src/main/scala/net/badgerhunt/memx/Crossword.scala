@@ -4,26 +4,34 @@ import scala.Char
 
 case class Crossword(width: Int, height: Int, words: Set[Word] = Set.empty, letters: Map[(Int, Int), Char] = Map.empty) {
 
-  lazy val gridString = {
-    (0 until height).map{yy =>
-      (0 until width).map{xx =>
-        letters.getOrElse((xx, yy), "。")
-      }.mkString + "\n"
-    }
-  }.mkString.trim
-
   def placementsFor(text: String) = {
     val placementsGivenDimensions =
       (0 to height - text.length).flatMap {y => (0 until width).map {x => Placement(x, y, Vertical)}} ++
       (0 until height).flatMap {y => (0 to width - text.length).map {x => Placement(x, y, Horizontal)}}
 
     // there are currently no words; or
-    // it intersects at least one existing letter
-    placementsGivenDimensions.filter{placement =>
+    // this word placement intersects at least one existing letter
+    val firstOrIntersectingPlacements = placementsGivenDimensions.filter{placement =>
       words.isEmpty ||
       Word(text, "", placement).intersects(letters)
-      // any extra words formed are valid
     }
+
+    // any extra words formed are attached (may not be valid words)
+    val validPlacementsWithTheirAuxiliaryWords = firstOrIntersectingPlacements.map{placement =>
+      // search backwards and forwards to find if the complete word is different
+      def textPrior(from: String): String = {
+        letters.get(placement.back(from.size + 1)).map(char => textPrior(char + from)).getOrElse(from)
+      }
+
+      def textAfter(from: String): String = {
+        letters.get(placement.forward(from.size)).map(char => textAfter(from + char)).getOrElse(from)
+      }
+
+      val expandedWord = textPrior("") + textAfter(text)
+      if (expandedWord == text) placement else placement.copy(aux = Set(expandedWord))
+    }
+
+    validPlacementsWithTheirAuxiliaryWords
   }
 
   def place(word: Word) = {
@@ -38,15 +46,24 @@ case class Crossword(width: Int, height: Int, words: Set[Word] = Set.empty, lett
       )
     } else this
   }
+
+  lazy val gridString = {
+    (0 until height).map{yy =>
+      (0 until width).map{xx =>
+        letters.getOrElse((xx, yy), "。")
+      }.mkString + "\n"
+    }
+  }.mkString.trim
 }
 
 sealed trait Orientation
-
 case object Horizontal extends Orientation
-
 case object Vertical extends Orientation
 
-case class Placement(x: Int, y: Int, orientation: Orientation)
+case class Placement(x: Int, y: Int, orientation: Orientation, aux: Set[String] = Set.empty) {
+  def back(i: Int) = if (orientation == Horizontal) (x - i, y) else (x, y - i)
+  def forward(i: Int) = if (orientation == Horizontal) (x + i, y) else (x, y + i)
+}
 
 case class Word(text: String, clue: String, placement: Placement) {
 
