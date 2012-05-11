@@ -82,13 +82,13 @@ class CrosswordTest extends Specification {
         Word("もちろん", "of course", Placement(3, 8, Horizontal)),
         Word("いりくち", "entrance", Placement(4, 5, Vertical))).only
 
-      updated.letter(3, 8) must beEqualTo('も')
-      updated.letter(4, 8) must beEqualTo('ち')
-      updated.letter(5, 8) must beEqualTo('ろ')
-      updated.letter(6, 8) must beEqualTo('ん')
-      updated.letter(4, 5) must beEqualTo('い')
-      updated.letter(4, 6) must beEqualTo('り')
-      updated.letter(4, 7) must beEqualTo('く')
+      updated.letters(3, 8) must beEqualTo('も')
+      updated.letters(4, 8) must beEqualTo('ち')
+      updated.letters(5, 8) must beEqualTo('ろ')
+      updated.letters(6, 8) must beEqualTo('ん')
+      updated.letters(4, 5) must beEqualTo('い')
+      updated.letters(4, 6) must beEqualTo('り')
+      updated.letters(4, 7) must beEqualTo('く')
     }
 
     "deny a placement that overwrites an existing letter with a different one" in {
@@ -120,31 +120,62 @@ class CrosswordTest extends Specification {
     "deny a placement that breaches the left and right hand boundaries" in {
       crossword.place(Word("おなかがすきませんでした", "was not hungry", Placement(-1, 1, Horizontal))) must beEqualTo(crossword)
     }
+
+    "have a printable gridString for debugging" in {
+      val string = crossword
+        .place(Word("にかわ", "glue", Placement(5,6,Vertical)))
+        .place(Word("かいわ", "conversation", Placement(3,8,Horizontal))).gridString
+      string mustEqual(
+        """
+          |。。。。。。。。。。
+          |。。。。。。。。。。
+          |。。。。。。。。。。
+          |。。。。。。。。。。
+          |。。。。。。。。。。
+          |。。。。。。。。。。
+          |。。。。。に。。。。
+          |。。。。。か。。。。
+          |。。。かいわ。。。。
+          |。。。。。。。。。。
+        """.stripMargin.trim)
+    }
+
   }
 
-  /*
-    "A crossword with an existing placement" should {
-      "find zero placements for words that do no intersect" in {
+  "A crossword with an existing placement" should {
+    val crossword = Crossword(12, 12).place(Word("かいわ", "conversation", Placement(3, 8, Horizontal)))
 
-      }
-      "find zero placements for words that intersect but breach the left boundary" in {
-
-      }
-      "find zero placements for words that intersect but breach the right boundary" in {
-
-      }
-      "find zero placements for words that intersect but breach the top boundary" in {
-
-      }
-      "find zero placements for words that intersect but breach the bottom boundary" in {
-
-      }
-      "find a placement for words that intersect" in {
-
-      }
-      "find multiple placements for words that intersect multiple times" in {
-
-      }
+    "find zero placements for words that do no intersect (even if there is free space)" in {
+      crossword.placementsFor("うなぎ") must beEmpty
     }
-  */
+
+    "find a placement for words that intersect" in {
+      crossword.placementsFor("おもしろい") must contain(Placement(4, 4, Vertical)).only
+    }
+
+    "find multiple placements for words that intersect multiple times" in {
+      crossword.placementsFor("にかわ") must contain(
+        Placement(3, 7, Vertical), Placement(5, 6, Vertical)
+      ).only
+    }
+
+//    "not find placements that invalidate the intersected word (ie in the same orientation)" in {
+//      crossword.placementsFor("わかり") must not contain(Placement(5, 8, Horizontal))
+//    }
+
+    /*
+        "find zero placements for words that intersect but breach the left boundary" in {
+
+        }
+        "find zero placements for words that intersect but breach the right boundary" in {
+
+        }
+        "find zero placements for words that intersect but breach the top boundary" in {
+
+        }
+        "find zero placements for words that intersect but breach the bottom boundary" in {
+
+        }
+    */
+  }
 }
