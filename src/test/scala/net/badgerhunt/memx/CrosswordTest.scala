@@ -171,24 +171,30 @@ class CrosswordTest extends Specification {
       crossword.placementsFor("かい") must not contain(Placement(3, 8, Horizontal, Set("かいわ")))
     }
 
+    "not find placements for words that intersect but breach the bottom boundary" in {
+      crossword.placementsFor("わかします") must not contain(Placement(5, 8, Vertical))
+    }
+
+    "not find placements for words that intersect but breach the right boundary" in {
+      crossword.placementsFor("わくわくしました") must beEmpty
+    }
+
+    "not find placements for words that intersect but breach the top boundary" in {
+      crossword.place(Word("かがみ", "mirror", Placement(2, 2, Horizontal))).
+        placementsFor("おりがみ") must not contain(Placement(5, -1, Vertical))
+    }
+
+    "not find placements for words that intersect but breach the left boundary" in {
+      crossword.place(Word("かがみ", "mirror", Placement(2, 2, Vertical))).
+        placementsFor("おりがみ") must not contain(Placement(-1, 5, Horizontal))
+    }
+
     /*
 
       "find placements that report auxiliary words (ie new words created as a result of extending existing letters)" in {
 
       }
 
-        "find zero placements for words that intersect but breach the left boundary" in {
-
-        }
-        "find zero placements for words that intersect but breach the right boundary" in {
-
-        }
-        "find zero placements for words that intersect but breach the top boundary" in {
-
-        }
-        "find zero placements for words that intersect but breach the bottom boundary" in {
-
-        }
     */
   }
 }
