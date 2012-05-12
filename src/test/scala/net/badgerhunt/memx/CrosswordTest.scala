@@ -189,12 +189,17 @@ class CrosswordTest extends Specification {
         placementsFor("おりがみ") must not contain(Placement(-1, 5, Horizontal))
     }
 
-    /*
-
-      "find placements that report auxiliary words (ie new words created as a result of extending existing letters)" in {
-
-      }
-
-    */
+    "find placements that report auxiliary words by extending right" in {
+      /*
+        。。。。。。    。。。。。。
+        。。。。。。    。。お。。。
+        。。。に。。    。。おに。。
+        。。。か。。--> 。。しか。。 adds [あに, しか]
+        。かいわ。。    。かいわ。。
+        。。。。。。    。。。。。。
+      */
+        crossword.place(Word("にかわ", "glue", Placement(5,6,Vertical))).
+        placementsFor("おおしい") must contain(Placement(4,5,Vertical,Set("おに", "しか")))
+    }
   }
 }

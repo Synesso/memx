@@ -16,19 +16,43 @@ case class Crossword(width: Int, height: Int, words: Set[Word] = Set.empty, lett
       Word(text, "", placement).intersects(letters)
     }
 
-    // any extra words formed are attached (may not be valid words)
-    val validPlacementsWithTheirAuxiliaryWords = firstOrIntersectingPlacements.map{placement =>
+    // any extra words formed by extending forward or backwards are attached (may not be valid words)
+    val validPlacementsWithTheirExtendedAuxiliaryWords = firstOrIntersectingPlacements.map{placement =>
       // search backwards and forwards to find if the complete word is different
       def textPrior(from: String): String = {
-        letters.get(placement.back(from.size + 1)).map(char => textPrior(char + from)).getOrElse(from)
+        letters.get(placement.back(from.size + 1).xy).map(char => textPrior(char + from)).getOrElse(from)
       }
 
       def textAfter(from: String): String = {
-        letters.get(placement.forward(from.size)).map(char => textAfter(from + char)).getOrElse(from)
+        letters.get(placement.forward(from.size).xy).map(char => textAfter(from + char)).getOrElse(from)
       }
 
       val expandedWord = textPrior("") + textAfter(text)
       if (expandedWord == text) placement else placement.copy(aux = Set(expandedWord))
+    }
+
+    // any extra words formed by joining perpendicular to any new letters are attached (may not be valid words)
+    val validPlacementsWithTheirAuxiliaryWords = validPlacementsWithTheirExtendedAuxiliaryWords.map{placement =>
+      def textPrior(from: String, placement: Placement): String = {
+        letters.get(placement.back(from.size + 1).xy).map(char => textPrior(char + from, placement)).getOrElse(from)
+      }
+
+      def textAfter(from: String, placement: Placement): String = {
+        letters.get(placement.forward(from.size).xy).map(char => textAfter(from + char, placement)).getOrElse(from)
+      }
+
+      val auxWords: Set[String] = (0 until text.size).toSet.flatMap{i: Int =>
+        val ithCharString = "" + text.charAt(i)
+        val intersectionAtIthChar = placement.forward(i).turn
+        val isIntersectionWithExistingWord = letters.get(intersectionAtIthChar.xy) == Some(text.charAt(i))
+        if (isIntersectionWithExistingWord) None
+        else {
+          val expandedWord = textPrior("", intersectionAtIthChar) + textAfter(ithCharString, intersectionAtIthChar)
+          if (expandedWord == ithCharString) None else Some(expandedWord)
+        }
+      }
+
+      placement.copy(aux = placement.aux ++ auxWords)
     }
 
     validPlacementsWithTheirAuxiliaryWords
@@ -61,8 +85,14 @@ case object Horizontal extends Orientation
 case object Vertical extends Orientation
 
 case class Placement(x: Int, y: Int, orientation: Orientation, aux: Set[String] = Set.empty) {
-  def back(i: Int) = if (orientation == Horizontal) (x - i, y) else (x, y - i)
-  def forward(i: Int) = if (orientation == Horizontal) (x + i, y) else (x, y + i)
+  lazy val xy = (x, y)
+  def back(i: Int) = if (orientation == Horizontal) this.copy(x = x - i) else this.copy(y = y - i)
+  def forward(i: Int) = if (orientation == Horizontal) this.copy(x = x + i) else this.copy(y = y + i)
+  def turn = if (orientation == Horizontal) this.copy(orientation = Vertical) else this.copy(orientation = Horizontal)
+}
+
+case class XY(x: Int, y: Int) {
+
 }
 
 case class Word(text: String, clue: String, placement: Placement) {
