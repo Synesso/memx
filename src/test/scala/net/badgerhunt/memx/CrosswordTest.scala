@@ -214,5 +214,30 @@ class CrosswordTest extends Specification {
         crossword.place(Word("さっか", "writer", Placement(3,6,Vertical))).
         placementsFor("おおしい") must contain(Placement(4,5,Vertical,Set("っし", "さお")))
     }
+
+    "find placements that report auxiliary words by extending up" in {
+      /*
+        。。。。。。    。。。。。。
+        。。。。。。    。。。。。。
+        。かいわ。。    。かいわ。。
+        。ぎ。。。。--> 。ぎょふ。。 adds [いょ, わふ]
+        。。。。。。    。。。。。。
+        。。。。。。    。。。。。。
+      */
+        crossword.place(Word("かぎ", "key", Placement(3,8,Vertical))).
+        placementsFor("ぎょふ") must contain(Placement(3,9,Horizontal,Set("いょ", "わふ")))
+    }
+
+    "find placements that report auxiliary words by extending down" in {
+      /*
+        。。。。。。    。。。。。。
+        。め。。。。    。め。。。。
+        。ん。。。。--> しんげき。。 adds [げい, きわ]
+        。かいわ。。    。かいわ。。
+        。い。。。。    。い。。。。
+      */
+        crossword.place(Word("めんかい", "interview", Placement(3,6,Vertical))).
+        placementsFor("しんげき") must contain(Placement(2,7,Horizontal,Set("げい", "きわ")))
+    }
   }
 }
