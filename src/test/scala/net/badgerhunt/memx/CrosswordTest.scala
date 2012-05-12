@@ -160,17 +160,18 @@ class CrosswordTest extends Specification {
     }
 
     "find placements that report auxiliary words by extending existing words" in {
-      crossword.placementsFor("わかり") must contain(Placement(5, 8, Horizontal, aux = Set("かいわかり")))
+      crossword.placementsFor("わかり") must contain(Placement(5, 8, Horizontal, Set("かいわかり")))
     }
 
     "find placements that report auxiliary words by prefixing existing words" in {
-      crossword.placementsFor("しずか") must contain(Placement(1, 8, Horizontal, aux = Set("しずかいわ")))
+      crossword.placementsFor("しずか") must contain(Placement(1, 8, Horizontal, Set("しずかいわ")))
+    }
+
+    "not find placements that are substrings of existing words" in {
+      crossword.placementsFor("かい") must not contain(Placement(3, 8, Horizontal, Set("かいわ")))
     }
 
     /*
-      "not find placements that are substrings of existing words" in {
-
-      }
 
       "find placements that report auxiliary words (ie new words created as a result of extending existing letters)" in {
 

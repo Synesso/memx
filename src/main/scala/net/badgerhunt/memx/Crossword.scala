@@ -69,6 +69,7 @@ case class Word(text: String, clue: String, placement: Placement) {
 
   def intersects(allLetters: Map[(Int, Int), Char]) = {
     letters.exists{l => allLetters.contains((l.x,l.y))} &&
+    letters.exists{l => !allLetters.contains((l.x,l.y))} &&
     letters.forall{l =>
       allLetters.get((l.x,l.y)).map{char => char == l.char}.getOrElse(true)
     }
