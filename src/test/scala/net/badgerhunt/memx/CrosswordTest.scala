@@ -201,5 +201,18 @@ class CrosswordTest extends Specification {
         crossword.place(Word("にかわ", "glue", Placement(5,6,Vertical))).
         placementsFor("おおしい") must contain(Placement(4,5,Vertical,Set("おに", "しか")))
     }
+
+    "find placements that report auxiliary words by extending left" in {
+      /*
+        。。。。。。    。。。。。。
+        。。。。。。    。。お。。。
+        。さ。。。。    。さお。。。
+        。っ。。。。--> 。っし。。。 adds [さお, っし]
+        。かいわ。。    。かいわ。。
+        。。。。。。    。。。。。。
+      */
+        crossword.place(Word("さっか", "writer", Placement(3,6,Vertical))).
+        placementsFor("おおしい") must contain(Placement(4,5,Vertical,Set("っし", "さお")))
+    }
   }
 }

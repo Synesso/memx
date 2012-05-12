@@ -83,10 +83,6 @@ case class Placement(x: Int, y: Int, orientation: Orientation, aux: Set[String] 
   def turn = if (orientation == Horizontal) this.copy(orientation = Vertical) else this.copy(orientation = Horizontal)
 }
 
-case class XY(x: Int, y: Int) {
-
-}
-
 case class Word(text: String, clue: String, placement: Placement) {
 
   def intersects(allLetters: Map[(Int, Int), Char]) = {
