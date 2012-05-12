@@ -16,31 +16,23 @@ case class Crossword(width: Int, height: Int, words: Set[Word] = Set.empty, lett
       Word(text, "", placement).intersects(letters)
     }
 
+    def textPrior(from: String, placement: Placement): String = {
+      letters.get(placement.back(from.size + 1).xy).map(char => textPrior(char + from, placement)).getOrElse(from)
+    }
+
+    def textAfter(from: String, placement: Placement): String = {
+      letters.get(placement.forward(from.size).xy).map(char => textAfter(from + char, placement)).getOrElse(from)
+    }
+
     // any extra words formed by extending forward or backwards are attached (may not be valid words)
     val validPlacementsWithTheirExtendedAuxiliaryWords = firstOrIntersectingPlacements.map{placement =>
       // search backwards and forwards to find if the complete word is different
-      def textPrior(from: String): String = {
-        letters.get(placement.back(from.size + 1).xy).map(char => textPrior(char + from)).getOrElse(from)
-      }
-
-      def textAfter(from: String): String = {
-        letters.get(placement.forward(from.size).xy).map(char => textAfter(from + char)).getOrElse(from)
-      }
-
-      val expandedWord = textPrior("") + textAfter(text)
+      val expandedWord = textPrior("", placement) + textAfter(text, placement)
       if (expandedWord == text) placement else placement.copy(aux = Set(expandedWord))
     }
 
     // any extra words formed by joining perpendicular to any new letters are attached (may not be valid words)
     val validPlacementsWithTheirAuxiliaryWords = validPlacementsWithTheirExtendedAuxiliaryWords.map{placement =>
-      def textPrior(from: String, placement: Placement): String = {
-        letters.get(placement.back(from.size + 1).xy).map(char => textPrior(char + from, placement)).getOrElse(from)
-      }
-
-      def textAfter(from: String, placement: Placement): String = {
-        letters.get(placement.forward(from.size).xy).map(char => textAfter(from + char, placement)).getOrElse(from)
-      }
-
       val auxWords: Set[String] = (0 until text.size).toSet.flatMap{i: Int =>
         val ithCharString = "" + text.charAt(i)
         val intersectionAtIthChar = placement.forward(i).turn
